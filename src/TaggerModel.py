@@ -2,12 +2,10 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import time
+import random
+import numpy as np
 from torch import optim
 from torch import autograd
-
-
-# torch.cuda.set_device(1)
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class TaggerModel(nn.Module):
     def __init__(self,
@@ -16,8 +14,10 @@ class TaggerModel(nn.Module):
                  embSize: int,
                  rnnSize: int,
                  hiddenSize: int,
-                 dropoutRate: float):
+                 dropoutRate: float,
+                 device:torch.device):
         super(TaggerModel, self).__init__()
+        self.device=device
         self.num_layers=rnnSize
         self.hidden_dim = hiddenSize
         self.word_embeddings = nn.Embedding(numWords, embedding_dim=embSize)
@@ -38,8 +38,8 @@ class TaggerModel(nn.Module):
                 autograd.Variable(torch.zeros(1, 1, self.hidden_dim)))
 
     def forward(self, sentence):
-        h0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(device)  # 同样考虑向前层和向后层
-        c0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(device)
+        h0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(self.device)  # 同样考虑向前层和向后层
+        c0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(self.device)
         embeds = self.word_embeddings(sentence)
         # print(embeds.shape)
         # print(embeds.view(len(sentence), 1, -1))
@@ -63,7 +63,8 @@ class TaggerModel(nn.Module):
         return IDs
 
 def run_test():
-    with open("model/test/loss.txt", mode='r+', encoding='utf-8') as words_save_file:
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    with open("../model/test/loss.txt", mode='r+', encoding='utf-8') as words_save_file:
         words_save_file.truncate()
     training_data = [([1, 2, 3], [4, 3, 2]),
                      ([2, 3, 3], [3, 2, 2]),
@@ -76,6 +77,7 @@ def run_test():
                         embSize=3,
                         rnnSize=1,
                         hiddenSize=3,
+                        device=device,
                         dropoutRate=0.1)
     loss_function = nn.NLLLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.1)
@@ -83,7 +85,10 @@ def run_test():
         count = 0
         average_loss = 0
         time_start = time.time()
-        for words, tags in training_data:
+        print(training_data)
+        shuffled_data = np.random.permutation(training_data)
+        print(shuffled_data)
+        for words, tags in shuffled_data:
             count += 1
             # Step 1\. 请记住 Pytorch 会累加梯度
             # 每次训练前需要清空梯度值
@@ -102,15 +107,15 @@ def run_test():
             average_loss = (average_loss + loss) / count
             loss.backward()
             optimizer.step()
-        torch.save(model.state_dict(), f'model/test/run_test{epoch+1}.pth')
+        torch.save(model.state_dict(), f'../model/test/run_test{epoch+1}.pth')
         time_end=time.time()
         print("Episode {} gets loss {}, cost time {} s".format(epoch + 1, average_loss, time_end - time_start))
-        with open("model/test/loss.txt", mode='a', encoding='utf-8') as words_save_file:
+        with open("../model/test/loss.txt", mode='a', encoding='utf-8') as words_save_file:
             words_save_file.write(str(epoch+1)+' '+str(average_loss.item()))
             words_save_file.write('\n')
 
     # load model
-    model.load_state_dict(torch.load('model/test/run_test50.pth'))
+    model.load_state_dict(torch.load('../model/test/run_test50.pth'))
 
     # start validation
     for words, tags in validation_data:
@@ -122,3 +127,6 @@ def run_test():
 
 if __name__ == '__main__':
     run_test()
+    # with open('../model/test/loss.txt') as f:
+    #     for line in f:
+    #         print(f)

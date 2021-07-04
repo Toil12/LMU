@@ -100,8 +100,8 @@ class Data:
                 tag_save_file.write('\n')
 
 def run_test():
-    t_file = "train.tagged"
-    d_file = "dev.tagged"
+    t_file = "../data/train.tagged"
+    d_file = "../data/dev.tagged"
     data = Data(train_file=t_file, dev_file=d_file, numWords=100)
     count=0
     for words, tags in data.trainSentences:
