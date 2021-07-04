@@ -14,7 +14,8 @@ def training(data:Data,
              embedding_size:int,
              device:torch.device,
              hidden_size:int,
-             dropout:float=0.1):
+             learning_rate:float,
+             dropout:float=0.1,):
     # Initialization
     with open("model/rnn_model/loss.txt", mode='r+', encoding='utf-8') as words_save_file:
         words_save_file.truncate()
@@ -27,7 +28,7 @@ def training(data:Data,
                         device=device)
 
     loss_function = nn.NLLLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     # start training
     print("start from {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
     t = model.to(device)
