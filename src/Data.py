@@ -88,7 +88,7 @@ class Data:
         return tags
 
     # store the two index related as files
-    def store(self, word_path='data/words_index.txt', tag_path='data/tags_index.txt'):
+    def store(self, word_path='../data/words_index.txt', tag_path='../data/tags_index.txt'):
         with open(word_path, 'w', encoding='utf-8') as words_save_file:
             for k, v in self.words_most_frequent_records.items():
                 words_save_file.write(k + ' ' + str(v))
@@ -102,7 +102,7 @@ class Data:
 def run_test():
     t_file = "../data/train.tagged"
     d_file = "../data/dev.tagged"
-    data = Data(train_file=t_file, dev_file=d_file, numWords=100)
+    data = Data(train_file=t_file, dev_file=d_file, numWords=10000)
     count=0
     for words, tags in data.trainSentences:
         wordIDs = data.words2IDs(words)
@@ -112,6 +112,7 @@ def run_test():
     print(tagIDs)
     print(data.IDs2tags(tagIDs))
     print(count)
+    data.store()
 
 
 if __name__ == '__main__':

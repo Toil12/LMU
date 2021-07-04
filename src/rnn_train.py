@@ -21,9 +21,8 @@ def training(data:Data,
     # do the train
     model = TaggerModel(numWords=numWords+1,
                         numTags=data.numTags+1,
-                        embSize=embedding_size, #int(math.log(numWords, 2)) could be take as default
-                        rnnSize=1,
-                        hiddenSize=hidden_size,
+                        embSize=embedding_size,  #int(math.log(numWords, 2)) could be take as default
+                        rnnSize=hidden_size,
                         dropoutRate=dropout,
                         device=device)
 
@@ -31,6 +30,8 @@ def training(data:Data,
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     # start training
     print("start from {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
+    t = model.to(device)
+    print(t)
     for epoch in range(epochs):
         time_start = time.time()
         count = 0
@@ -68,6 +69,7 @@ def training(data:Data,
             words_save_file.write('\n')
 
 
+
 def predict(model_name: str,
             data:Data,
             numWords:int,
@@ -79,8 +81,7 @@ def predict(model_name: str,
     model = TaggerModel(numWords=numWords+1,
                         numTags=data.numTags+1,
                         embSize=embedding_size,
-                        rnnSize=1,
-                        hiddenSize=hidden_size,
+                        rnnSize=hidden_size,
                         dropoutRate=dropout,
                         device=device)
     model.load_state_dict(torch.load(model_name))
@@ -90,7 +91,7 @@ def predict(model_name: str,
     count = 0
     correct_count = 0
     for words, tags in data.devSentences:
-        count+=1
+
         wordIDs = data.words2IDs(words)
         tagIDs = data.tags2IDs(tags)
         # change to tensor
@@ -102,7 +103,9 @@ def predict(model_name: str,
         for i in range(len(bestTags)):
             if bestTags[i]==tags[i]:
                 correct_count+=1
-        print("this sentence with correctness of {:.4}%".format((correct_count/count*100),'.4f'))
+            count += 1
+        print("this sentence with correctness of {:.4}%".format((correct_count/count)*100,'.4f'))
+
     corretness.append(correct_count/count)
     print("average correctness is {}%".format(np.mean(corretness)*100))
 

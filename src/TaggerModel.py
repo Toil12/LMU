@@ -13,24 +13,23 @@ class TaggerModel(nn.Module):
                  numTags: int,
                  embSize: int,
                  rnnSize: int,
-                 hiddenSize: int,
                  dropoutRate: float,
                  device:torch.device):
         super(TaggerModel, self).__init__()
         self.device=device
-        self.num_layers=rnnSize
-        self.hidden_dim = hiddenSize
+        self.num_layers=1
+        self.hidden_dim = rnnSize
         self.word_embeddings = nn.Embedding(numWords, embedding_dim=embSize)
 
         #  LSTM 以 word_embeddings 作为输入, 输出维度为 hidden_dim 的隐状态值
         self.lstm = nn.LSTM(input_size=embSize,
-                            hidden_size=hiddenSize,
+                            hidden_size=rnnSize,
                             batch_first=True,
                             bidirectional=True,
-                            num_layers=rnnSize,
+                            num_layers=1,
                             dropout=dropoutRate)
         # 线性层将隐状态空间映射到标注空间
-        self.hidden2tag = nn.Linear(hiddenSize*2, numTags)
+        self.hidden2tag = nn.Linear(rnnSize * 2, numTags)
         self.hidden = self.init_hidden()
 
     def init_hidden(self):
@@ -75,8 +74,7 @@ def run_test():
     model = TaggerModel(numWords=10,
                         numTags=5,
                         embSize=3,
-                        rnnSize=1,
-                        hiddenSize=3,
+                        rnnSize=3,
                         device=device,
                         dropoutRate=0.1)
     loss_function = nn.NLLLoss()
