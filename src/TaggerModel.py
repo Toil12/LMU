@@ -40,8 +40,6 @@ class TaggerModel(nn.Module):
         h0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(self.device)  # 同样考虑向前层和向后层
         c0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(self.device)
         embeds = self.word_embeddings(sentence)
-        # print(embeds.shape)
-        # print(embeds.view(len(sentence), 1, -1))
         lstm_out, self.hidden = self.lstm(embeds.view(len(sentence), 1, -1), (h0, c0))
         tag_space = self.hidden2tag(lstm_out.view(len(sentence), -1))
         tag_scores = F.log_softmax(tag_space, dim=1)

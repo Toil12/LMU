@@ -1,20 +1,32 @@
 class Data:
-    def __init__(self, train_file: str, dev_file: str, numWords: int):
-        """
-        Store the data and give out two list related to
-        :param train_file:
-        :param dev_file:
-        :param numWords:
-        """
+    def __init__(self, *args):#train_file: str, dev_file: str, numWords: int
+
         self.words_frequency_records = {}
         self.words_most_frequent_records = {}
         self.tag_frequency_records = {}
         self.trainSentences = []
         self.devSentences = []
-        self.numTags = 1
-        self.numWords = numWords
+        if len(args)==1:
+            self.init_test(*args)
+        else:
+            self.init_train(*args)
+
         # read validation file
-        with open(dev_file, encoding='utf-8') as f:
+    def init_test(self,paramfile:str):
+        self.paramfile=paramfile
+
+    def init_train(self,train_file: str, dev_file: str, numWords: int, paramfile:str):
+
+        self.train_file = train_file
+        self.dev_file = dev_file
+        self.numWords = numWords
+        self.numTags = 1
+        self.paramfile=paramfile
+        self.read_data()
+
+
+    def read_data(self):
+        with open(self.dev_file, encoding='utf-8') as f:
             dev_word = []
             dev_tag = []
             for line in f:
@@ -27,7 +39,7 @@ class Data:
                     dev_word = []
                     dev_tag = []
         # read train file
-        with open(train_file, encoding="utf-8") as f:
+        with open(self.train_file, encoding="utf-8") as f:
             train_word = []
             train_tag = []
             for line in f:
@@ -98,6 +110,8 @@ class Data:
             for k, v in self.tag_frequency_records.items():
                 tag_save_file.write(k + ' ' + str(v))
                 tag_save_file.write('\n')
+
+    # def store_parameters(self):
 
 def run_test():
     t_file = "../data/train.tagged"
