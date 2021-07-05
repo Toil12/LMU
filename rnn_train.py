@@ -132,8 +132,8 @@ if __name__ == '__main__':
         learning_rate = 0.01
         command=sys.argv[1]
     else:
-        t_file = f"../data/{sys.argv[1]}"
-        d_file = f"../data/{sys.argv[2]}"
+        t_file = f"data/{sys.argv[1]}"
+        d_file = f"data/{sys.argv[2]}"
         paramfile=sys.argv[3]
         epochs = int(match("num_epochs"))
         numWords = int(match("num_words"))
