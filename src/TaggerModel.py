@@ -18,12 +18,13 @@ class TaggerModel(nn.Module):
         super(TaggerModel, self).__init__()
         self.device=device
         self.num_layers=1
-        self.hidden_dim = rnnSize
+        self.rnnsize=rnnSize
+        self.hidden_dim = 200
         self.word_embeddings = nn.Embedding(numWords, embedding_dim=embSize)
 
         #  LSTM 以 word_embeddings 作为输入, 输出维度为 hidden_dim 的隐状态值
         self.lstm = nn.LSTM(input_size=embSize,
-                            hidden_size=rnnSize,
+                            hidden_size=self.hidden_dim,
                             batch_first=True,
                             bidirectional=True,
                             num_layers=1,
@@ -39,6 +40,7 @@ class TaggerModel(nn.Module):
     def forward(self, sentence):
         h0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(self.device)  # 同样考虑向前层和向后层
         c0 = torch.zeros(self.num_layers * 2, sentence.size(0), self.hidden_dim).to(self.device)
+        # sentence=
         embeds = self.word_embeddings(sentence)
         lstm_out, self.hidden = self.lstm(embeds.view(len(sentence), 1, -1), (h0, c0))
         tag_space = self.hidden2tag(lstm_out.view(len(sentence), -1))

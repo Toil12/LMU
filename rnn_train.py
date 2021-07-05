@@ -66,10 +66,9 @@ def training(data:Data,
         print("end at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
         print("Episode {} gets loss {}, costs {}s".format(epoch + 1, average_loss, time_end - time_start))
         print()
-        with open("../model/rnn_model/loss.txt", mode='a', encoding='utf-8') as words_save_file:
+        with open(f"{root}/model/rnn_model/loss.txt", mode='a', encoding='utf-8') as words_save_file:
             words_save_file.write(str(epoch + 1) + ' ' + str(average_loss.item()))
             words_save_file.write('\n')
-
 
 
 def predict(model_name: str,
@@ -157,7 +156,7 @@ if __name__ == '__main__':
                  learning_rate=0.05)
     elif command=="dev":
         model_name = sys.argv[2]
-        predict(model_name=f'model/rnn_model/{model_name}.pth',
+        predict(model_name=f'{root}/model/rnn_model/{model_name}.pth',
                 data=data,
                 numWords=numWords,
                 embedding_size=embed_zise,
