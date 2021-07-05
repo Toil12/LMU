@@ -7,6 +7,7 @@ import torch.nn as nn
 import time
 import sys
 import re
+import os
 
 def training(data:Data,
              numWords:int,
@@ -17,7 +18,7 @@ def training(data:Data,
              learning_rate:float,
              dropout:float=0.1,):
     # Initialization
-    with open(f"../model/rnn_model/loss.txt", mode='r+', encoding='utf-8') as words_save_file:
+    with open(f"{root}/model/rnn_model/loss.txt", mode='r+', encoding='utf-8') as words_save_file:
         words_save_file.truncate()
     # do the train
     model = TaggerModel(numWords=numWords+1,
@@ -60,7 +61,7 @@ def training(data:Data,
             loss.backward()
             optimizer.step()
             # print(count)
-        torch.save(model.state_dict(), f'model/rnn_model/model{epoch+1}.pth')
+        torch.save(model.state_dict(), f'{root}/model/rnn_model/model{epoch+1}.pth')
         time_end = time.time()
         print("end at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
         print("Episode {} gets loss {}, costs {}s".format(epoch + 1, average_loss, time_end - time_start))
@@ -118,10 +119,11 @@ def match(ch:str):
 
 
 if __name__ == '__main__':
+    root = os.path.abspath(os.path.dirname(__file__))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     if len(sys.argv)==1:
-        t_file = f"../data/train.tagged"
-        d_file = f"../data/dev.tagged"
+        t_file = f"{root}/data/train.tagged"
+        d_file = f"{root}/data/dev.tagged"
         numWords = 10000
         paramfile = ""
         data = Data(t_file,d_file,numWords,paramfile)
@@ -132,8 +134,8 @@ if __name__ == '__main__':
         learning_rate = 0.01
         command=sys.argv[1]
     else:
-        t_file = f"data/{sys.argv[1]}"
-        d_file = f"data/{sys.argv[2]}"
+        t_file = f"{root}/data/{sys.argv[1]}"
+        d_file = f"{root}/data/{sys.argv[2]}"
         paramfile=sys.argv[3]
         epochs = int(match("num_epochs"))
         numWords = int(match("num_words"))
